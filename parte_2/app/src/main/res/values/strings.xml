@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="action_settings">Settings</string>
+
+
+    <string name="feedback_no_internet_title">Error Internet</string>
+    <string name="feedback_no_internet_description">Something happen. check your connection and try again.</string>
+
+    <string name="feedback_generic_error_title">Sorry :(</string>
+    <string name="feedback_generic_error_description">Something happen and don\'t complete your request. Try again later.</string>
+</resources>
