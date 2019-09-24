@@ -31,6 +31,8 @@ fun <Result> AppCompatActivity.observeSimpleScreenState(
     liveData.observe(this, Observer { viewState ->
         when (viewState) {
             is ViewState.Success -> {
+                findViewById<View>(loadingIdContainer).hidden = true
+                findViewById<View>(feedbackIdContainer).hidden = true
                 success.invoke(viewState.result)
             }
             is ViewState.Loading -> {
@@ -44,10 +46,6 @@ fun <Result> AppCompatActivity.observeSimpleScreenState(
                 } else {
                     showServerError(feedbackIdContainer)
                 }
-            }
-            else -> {
-                findViewById<View>(loadingIdContainer).hidden = true
-                findViewById<View>(feedbackIdContainer).hidden = true
             }
         }
     })
