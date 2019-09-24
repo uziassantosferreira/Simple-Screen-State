@@ -1,23 +1,24 @@
 package com.uziassantosferreira.simplescreenstate.coordination
 
 import androidx.lifecycle.MutableLiveData
-import com.uziassantosferreira.simplescreenstate.extensions.getScreenState
-import com.uziassantosferreira.simplescreenstate.ui.model.SimpleScreenState
+import com.uziassantosferreira.simplescreenstate.extensions.getUiThrowable
+import com.uziassantosferreira.simplescreenstate.ui.model.ViewState
 import io.reactivex.Single
 import io.reactivex.SingleSource
 import io.reactivex.SingleTransformer
 
-class SimpleScreenStateCoordinationSingle<T>(private val simpleScreenState: MutableLiveData<SimpleScreenState>) :
-    SingleTransformer<T, T> {
-    override fun apply(upstream: Single<T>): SingleSource<T> {
+class SimpleScreenStateCoordinationSingle<Result>
+    (private val viewState: MutableLiveData<ViewState<Result, Throwable>>) :
+    SingleTransformer<Result, Result> {
+    override fun apply(upstream: Single<Result>): SingleSource<Result> {
         return upstream.doOnSubscribe {
-            simpleScreenState.value = SimpleScreenState.Loading
+            viewState.value = ViewState.Loading
         }
             .doOnSuccess {
-                simpleScreenState.value = null
+                viewState.value = ViewState.Success(it)
             }
             .doOnError {
-                simpleScreenState.value = it.getScreenState()
+                viewState.value = it.getUiThrowable()
             }
     }
 }

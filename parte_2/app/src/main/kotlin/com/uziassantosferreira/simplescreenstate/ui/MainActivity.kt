@@ -5,9 +5,12 @@ import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.lifecycle.Observer
 import com.uziassantosferreira.simplescreenstate.R
 import com.uziassantosferreira.simplescreenstate.extensions.observeSimpleScreenState
+import com.uziassantosferreira.simplescreenstate.ui.model.ViewState
 import com.uziassantosferreira.simplescreenstate.ui.viewmodel.SimpleScreenStateViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -26,9 +29,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         observeSimpleScreenState(
-            simpleScreenState = viewModel.getSomethingLiveData(),
+            liveData = viewModel.getSomethingLiveData(),
             loadingIdContainer = R.id.loadingContainer,
-            feedbackIdContainer = R.id.feedbackContainer)
+            feedbackIdContainer = R.id.feedbackContainer,
+            success = {
+                Toast.makeText(this, it.toString(), Toast.LENGTH_LONG).show()
+            }
+        )
 
         viewModel.executeSomething()
     }

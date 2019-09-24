@@ -3,9 +3,9 @@ package com.uziassantosferreira.simplescreenstate.ui.viewmodel;
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.uziassantosferreira.simplescreenstate.ui.model.SimpleScreenState
+import com.uziassantosferreira.simplescreenstate.ui.model.ViewState
 import com.uziassantosferreira.simplescreenstate.coordination.SimpleScreenStateCoordinationSingle
-import com.uziassantosferreira.simplescreenstate.throwable.NetworkException
+import com.uziassantosferreira.simplescreenstate.ui.throwable.NetworkUiException
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -16,35 +16,33 @@ class SimpleScreenStateViewModel : ViewModel() {
 
     private val disposable = CompositeDisposable()
 
-    private val screenState: MutableLiveData<SimpleScreenState> by lazy {
-        MutableLiveData<SimpleScreenState>().also {
-            //            executeSomething()
-        }
+    private val viewState: MutableLiveData<ViewState<Int, Throwable>> by lazy {
+        MutableLiveData<ViewState<Int, Throwable>>()
     }
 
-    fun getSomethingLiveData(): LiveData<SimpleScreenState> {
-        return screenState
+    fun getSomethingLiveData(): LiveData<ViewState<Int, Throwable>> {
+        return viewState
     }
 
     fun executeSomething() {
         disposable.add(getSomething()
             .subscribe({
-            print(it)
-        }, {
-            print(it)
-        }))
+                viewState.value = ViewState.Success(it)
+            }, {
+                print(it)
+            })
+        )
     }
 
     private fun getSomething(): Single<Int> {
         return Single
             .create<Int> { emitter ->
-//                emitter.onError(NetworkException())
                 emitter.onSuccess(1)
             }
             .delay(3, TimeUnit.SECONDS, true)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .compose(SimpleScreenStateCoordinationSingle(screenState))
+            .compose(SimpleScreenStateCoordinationSingle(viewState))
     }
 
     override fun onCleared() {

@@ -5,8 +5,9 @@ import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import com.uziassantosferreira.simplescreenstate.ui.model.SimpleScreenState
+import com.uziassantosferreira.simplescreenstate.ui.model.ViewState
 import com.uziassantosferreira.simplescreenstate.feedback.Feedback
+import com.uziassantosferreira.simplescreenstate.ui.throwable.NetworkUiException
 
 fun AppCompatActivity.showFeedback(feedback: Feedback, @IdRes feedbackIdContainer: Int) {
     findViewById<View>(feedbackIdContainer).hidden = false
@@ -19,27 +20,30 @@ fun AppCompatActivity.showServerError(@IdRes feedbackIdContainer: Int) {
 
 fun AppCompatActivity.showNoInternetError(@IdRes feedbackIdContainer: Int) {
     showFeedback(Feedback.noInternet(this), feedbackIdContainer)
-
 }
 
-fun AppCompatActivity.observeSimpleScreenState(
-    simpleScreenState: LiveData<SimpleScreenState>,
+fun <Result> AppCompatActivity.observeSimpleScreenState(
+    liveData: LiveData<ViewState<Result, Throwable>>,
     @IdRes loadingIdContainer: Int,
-    @IdRes feedbackIdContainer: Int
+    @IdRes feedbackIdContainer: Int,
+    success: (Result) -> Unit
 ) {
-    simpleScreenState.observe(this, Observer { viewState ->
+    liveData.observe(this, Observer { viewState ->
         when (viewState) {
-            SimpleScreenState.Loading -> {
+            is ViewState.Success -> {
+                success.invoke(viewState.result)
+            }
+            is ViewState.Loading -> {
                 findViewById<View>(loadingIdContainer).hidden = false
                 findViewById<View>(feedbackIdContainer).hidden = true
             }
-            SimpleScreenState.GenericError -> {
+            is ViewState.Failure -> {
                 findViewById<View>(loadingIdContainer).hidden = true
-                showServerError(feedbackIdContainer)
-            }
-            SimpleScreenState.NetworkError -> {
-                findViewById<View>(loadingIdContainer).hidden = true
-                showNoInternetError(feedbackIdContainer)
+                if (viewState.error is NetworkUiException) {
+                    showNoInternetError(feedbackIdContainer)
+                } else {
+                    showServerError(feedbackIdContainer)
+                }
             }
             else -> {
                 findViewById<View>(loadingIdContainer).hidden = true

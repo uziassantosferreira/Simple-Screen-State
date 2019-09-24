@@ -1,12 +1,14 @@
 package com.uziassantosferreira.simplescreenstate.extensions
 
-import com.uziassantosferreira.simplescreenstate.ui.model.SimpleScreenState
 import com.uziassantosferreira.simplescreenstate.throwable.NetworkException
+import com.uziassantosferreira.simplescreenstate.ui.model.ViewState
+import com.uziassantosferreira.simplescreenstate.ui.throwable.GenericUiException
+import com.uziassantosferreira.simplescreenstate.ui.throwable.NetworkUiException
 
-fun Throwable.getScreenState(): SimpleScreenState =
+fun Throwable.getUiThrowable(): ViewState.Failure<Throwable> =
     when (this) {
         is NetworkException -> {
-            SimpleScreenState.NetworkError
+            ViewState.Failure(NetworkUiException())
         }
-        else -> SimpleScreenState.GenericError
+        else -> ViewState.Failure(GenericUiException())
     }
